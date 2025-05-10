@@ -7,21 +7,35 @@ function FlightSearch() {
   const [date, setDate] = useState("");
   const [flightClass, setFlightClass] = useState("eco");
   const [results, setResults] = useState([]);
+  const [error, setError] = useState("");
 
   const flightData = [
     { from: "DEL", to: "BOM", airline: "IndiGo", time: "10:00 AM", price: "₹4,500" },
-    { from: "DEL", to: "BOM", airline: "Air India", time: "2:30 PM", price: "₹5,000" },
-    { from: "BLR", to: "MAA", airline: "SpiceJet", time: "6:00 AM", price: "₹3,000" },
+    { from: "DEL", to: "BLR", airline: "Air India", time: "12:00 PM", price: "₹5,200" },
+    { from: "MAA", to: "BOM", airline: "Vistara", time: "6:00 AM", price: "₹4,800" },
+    { from: "BLR", to: "DEL", airline: "SpiceJet", time: "3:30 PM", price: "₹4,000" },
+    { from: "MAA", to: "BLR", airline: "AirAsia", time: "7:00 PM", price: "₹3,000" },
+    { from: "BOM", to: "MAA", airline: "GoAir", time: "5:00 PM", price: "₹3,900" },
   ];
 
   const handleSearch = () => {
-    const filtered = flightData.filter(flight => flight.from === from && flight.to === to);
+    if (!date) {
+      setError("Please select a departure date.");
+      setResults([]);
+      return;
+    }
+
+    setError("");
+
+    // Show all valid flights where from !== to
+    const filtered = flightData.filter(flight => flight.from !== flight.to);
     setResults(filtered);
   };
 
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Search Flights</h2>
+
       <div className="mb-3">
         <label>From:</label>
         <select className="form-select" value={from} onChange={e => setFrom(e.target.value)}>
@@ -55,14 +69,16 @@ function FlightSearch() {
         </select>
       </div>
 
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <button className="btn btn-primary w-100" onClick={handleSearch}>
-        Search Flights
+        Show All Flights
       </button>
 
       <div className="mt-4">
         <h4>Available Flights:</h4>
-        {results.length === 0 ? (
-          <p>No flights found for this route.</p>
+        {results.length === 0 && !error ? (
+          <p>No flights found.</p>
         ) : (
           results.map((flight, index) => (
             <div key={index} className="p-3 mb-2 bg-light border rounded">
@@ -70,6 +86,7 @@ function FlightSearch() {
               <div>Time: {flight.time}</div>
               <div>Price: {flight.price}</div>
               <div>Class: {flightClass === "eco" ? "Economy" : "Premium Economy"}</div>
+              <div>Date: {date}</div>
             </div>
           ))
         )}
